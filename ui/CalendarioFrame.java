@@ -1,16 +1,34 @@
 package ui;
 
+import model.Pessoa;
+import service.CalendarioService;
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Arrays;
+import java.util.List;
 
 public class CalendarioFrame extends JFrame {
     private JPanel calendarioPanel;
     private JLabel mesAnoLabel;
     private LocalDate dataAtual;
+    private CalendarioService calendarioService;
 
-    public CalendarioFrame() {
+    // Lista de cores para pessoas (pode ajustar ou expandir conforme precisar)
+    private final List<Color> cores = Arrays.asList(
+        new Color(200, 230, 255), // azul claro
+        new Color(255, 230, 230), // rosa claro
+        new Color(230, 255, 200), // verde claro
+        new Color(255, 255, 200), // amarelo claro
+        new Color(220, 200, 255), // roxo claro
+        new Color(255, 210, 190)  // salmão claro
+    );
+
+    public CalendarioFrame(CalendarioService service) {
+        this.calendarioService = service;
+
         setTitle("📅 Calendário de Revezamento");
         setSize(600, 400);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -68,10 +86,22 @@ public class CalendarioFrame extends JFrame {
             calendarioPanel.add(new JLabel(""));
         }
 
-        // Preenche os dias
+        // Preenche os dias e mostra responsável e cor
         for (int dia = 1; dia <= diasNoMes; dia++) {
-            JLabel diaLabel = new JLabel(String.valueOf(dia), SwingConstants.CENTER);
+            LocalDate dataDia = anoMes.atDay(dia);
+            Pessoa responsavel = calendarioService.getResponsavel(dataDia);
+
+            JLabel diaLabel = new JLabel(
+                "<html><center>" + dia + "<br>" + responsavel.getNome() + "</center></html>",
+                SwingConstants.CENTER
+            );
             diaLabel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+
+            int index = calendarioService.getIndexDaPessoa(responsavel);
+            Color cor = cores.get(index % cores.size());
+
+            diaLabel.setBackground(cor);
+            diaLabel.setOpaque(true);
             calendarioPanel.add(diaLabel);
         }
 
