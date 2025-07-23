@@ -56,22 +56,29 @@ Vamos dividir em partes, como um mini-projeto modular e evolutivo:
 
 ---
 
+
 ## 🗂️ Estrutura do Projeto
 
 Este projeto segue uma estrutura modular padrão para aplicações Java Swing, organizada da seguinte forma:
 
-| Caminho/Arquivo           | Descrição                                                              |
+| Caminho/Arquivo | Descrição |
 | :------------------------ | :--------------------------------------------------------------------- |
 | `CalendarioUniversal/`    | Diretório raiz do projeto.                                             |
 | ├── `App.java`            | Ponto de entrada principal da aplicação.                               |
-| ├── `data/`               | **(Se usado)** Armazena dados ou configurações persistentes.           |
+| ├── `.gitignore`          | Define arquivos e pastas a serem ignorados pelo Git.                   |
+| ├── `data/`               | Armazena dados de configuração da aplicação.                           |
+| │   └── `config.json`     | Arquivo de configuração em formato JSON.                               |
 | ├── `lib/`                | Contém bibliotecas externas (JARs) necessárias para o projeto.         |
+| │   └── `gson-2.10.1.jar` | Biblioteca Gson para manipulação de JSON.                              |
 | ├── `model/`              | Define os modelos de dados e entidades do projeto.                     |
+| │   ├── `Configuracao.java`| Classe para gerenciar configurações da aplicação.                     |
 | │   └── `Pessoa.java`     | Representa uma pessoa no sistema de revezamento.                       |
 | ├── `service/`            | Contém a lógica de negócio e os serviços da aplicação.                 |
-| │   └── `CalendarioService.java`| Gerencia a lógica de cálculo dos revezamentos.                   |
+| │   ├── `CalendarioService.java`| Gerencia a lógica de cálculo dos revezamentos.                 |
+| │   ├── `ConfigHelper.java`| Classe auxiliar para manipulação de configurações.                   |
+| │   └── `LocalDateAdapter.java`| Adaptador para serialização/desserialização de `LocalDate`.       |
 | └── `ui/`                 | Contém as classes da interface gráfica (Java Swing).                   |
-|     └── `CalendarioFrame.java`| A janela principal do calendário.         
+|     └── `CalendarioFrame.java`| A janela principal do calendário.                                  |
 
 ---
 

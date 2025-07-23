@@ -1,7 +1,9 @@
 package model;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Configuracao {
     private List<Pessoa> pessoas;
@@ -28,4 +30,16 @@ public class Configuracao {
     public void setDataInicial(LocalDate dataInicial) {
         this.dataInicial = dataInicial;
     }
+
+
+    private Map<LocalDate, Pessoa> substituicoes = new HashMap<>();
+
+    public Map<LocalDate, Pessoa> getSubstituicoes() {
+    return substituicoes;
+    }
+
+    public void setSubstituicoes(Map<LocalDate, Pessoa> substituicoes) {
+    this.substituicoes = substituicoes;
+    }
+
 }
