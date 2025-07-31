@@ -31,19 +31,26 @@ Vamos dividir em partes, como um mini-projeto modular e evolutivo:
 - [x] Alternar dia sim, dia não (revezamento entre duas pessoas)
 - [x] Calcular, para qualquer data, quem está escalado
 - [x] Salvar os Dados
-- [ ] Apagar os Dados Salvos
-- [ ] Fazer modificações manualmente no calendario no futuro
-- [ ] Criar um botao para Salvar novas mudanças
+- [x] Apagar os Dados Salvos
+- [x] Fazer modificações manualmente no calendario no futuro
+- [x] Criar um botao para Salvar novas mudanças
 
 
 ### 🔹 Parte 3 – Visual
-- [ ] Mostrar o nome da pessoa escalada no dia
-- [ ] Aplicar cores distintas para cada pessoa
+- [x] Mostrar o nome da pessoa escalada no dia
+- [x] Aplicar cores distintas para cada pessoa
 - [ ] (Opcional) Exibir imagem personalizada no dia
 
 ### 🔹 Parte 4 – Personalização
-- [ ] Editar facilmente nomes, datas, ordem e lógica
-- [ ] Preparar para múltiplos idiomas (internacionalização)
+- [x] Editar facilmente nomes, datas, ordem e lógica
+- [x] Preparar para múltiplos idiomas (internacionalização)
+
+### 🔹 Parte 5 – Melhoria
+- [ ] Poder salvar imagem/pdf no computador do calendario
+- [ ] Fazer um executivel para rodar o programa.
+- [ ] (Opcional) - Tentar melhorar o visual, adicionando skins em certo dias especiais.
+
+
 
 ---
 
@@ -59,58 +66,47 @@ Vamos dividir em partes, como um mini-projeto modular e evolutivo:
 
 ## 🗂️ Estrutura do Projeto
 
-Este projeto segue uma estrutura modular padrão para aplicações Java Swing, organizada da seguinte forma:
-
-| Caminho/Arquivo | Descrição |
-| :------------------------ | :--------------------------------------------------------------------- |
-| `CalendarioUniversal/`    | Diretório raiz do projeto.                                             |
-| ├── `App.java`            | Ponto de entrada principal da aplicação.                               |
-| ├── `.gitignore`          | Define arquivos e pastas a serem ignorados pelo Git.                   |
-| ├── `data/`               | Armazena dados de configuração da aplicação.                           |
-| │   └── `config.json`     | Arquivo de configuração em formato JSON.                               |
-| ├── `lib/`                | Contém bibliotecas externas (JARs) necessárias para o projeto.         |
-| │   └── `gson-2.10.1.jar` | Biblioteca Gson para manipulação de JSON.                              |
-| ├── `model/`              | Define os modelos de dados e entidades do projeto.                     |
-| │   ├── `Configuracao.java`| Classe para gerenciar configurações da aplicação.                     |
-| │   └── `Pessoa.java`     | Representa uma pessoa no sistema de revezamento.                       |
-| ├── `service/`            | Contém a lógica de negócio e os serviços da aplicação.                 |
-| │   ├── `CalendarioService.java`| Gerencia a lógica de cálculo dos revezamentos.                 |
-| │   ├── `ConfigHelper.java`| Classe auxiliar para manipulação de configurações.                   |
-| │   └── `LocalDateAdapter.java`| Adaptador para serialização/desserialização de `LocalDate`.       |
-| └── `ui/`                 | Contém as classes da interface gráfica (Java Swing).                   |
-|     └── `CalendarioFrame.java`| A janela principal do calendário.                                  |
+| Caminho / Arquivo                 | Descrição                                                                 |
+|----------------------------------|---------------------------------------------------------------------------|
+| `App.java`                       | Ponto de entrada da aplicação (classe App).                               |
+| `.gitignore`                     | Lista de arquivos/pastas ignorados pelo Git.                              |
+| `lib/gson-2.10.1.jar`            | Biblioteca Gson para JSON.                                                |
+| `model/Configuracao.java`       | Gerencia as configurações de data e revezamento.                          |
+| `model/Pessoa.java`             | Representa uma pessoa no sistema de revezamento.                          |
+| `resources/mensagens*.properties` | ResourceBundles para cada idioma (pt_BR, en, es, fr, de, it, ja, ko, nl, pl, ru, ar, zh_CN). |
+| `service/LocaleManager.java`    | Classe responsável pela troca de Locale e carregamento de bundles.        |
+| `service/TestLocaleManager.java`| Teste interativo para verificar carregamento de traduções.                |
+| `service/CalendarioService.java`| Lógica de cálculo do revezamento.                                         |
+| `service/ConfigHelper.java`     | Auxílio na leitura/escrita de configuração JSON.                          |
+| `service/LocalDateAdapter.java` | Adaptador para (de)serialização de LocalDate com Gson.                    |
+| `ui/CalendarioFrame.java`       | Janela principal do calendário.                                           |
+| `ui/ConfiguracaoDialog.java`    | Diálogo de configuração inicial.                                          |
 
 ---
+
 
 ## 🧪 Como Executar
 Compile os arquivos:
 ```
-javac App.java ui/CalendarioFrame.java
+javac -d bin -cp "lib/gson-2.10.1.jar;resources;." App.java model\*.java service\*.java ui\*.java
 ```
 Execute o app:
 
 No Windows :
 ```
-java -cp "lib/gson-2.10.1.jar;." App
+java -cp "bin;lib/gson-2.10.1.jar;resources" App
 ```
 
 No Linux/Mac :
 ```
-java -cp "lib/gson-2.10.1.jar:." App
+java -cp "bin:lib/gson-2.10.1.jar:resources" App
 ```
 
 ---
 
-## 🔧 Futuras Melhorias
-1. Adicionar persistência (salvar configuração em arquivo) -> _esta sendo produzindo no momento_
+## 🔧 Bugs Conhecidos
 
-2. Criar empacotamento em .jar executável
-
-3. Exportar calendário como imagem ou PDF
-
-4. Adicionar suporte para mais de duas pessoas no revezamento -> _Foi Feito_
-
-5. Suporte para feriados, finais de semana ou revezamentos semanais
+1. O unico bug no momento é para linguas koreana, japones e chines, o formato de texto esta errado e esta saindo quadrado, ou seja, no futuro precisarei corrigir isso.
 
 ## 👤 Autor
 zSevens7
