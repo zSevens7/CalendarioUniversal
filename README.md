@@ -47,7 +47,7 @@ Vamos dividir em partes, como um mini-projeto modular e evolutivo:
 
 ### 🔹 Parte 5 – Melhoria
 - [x] Poder salvar imagem/pdf no computador do calendario
-- [ ] Fazer um executivel para rodar o programa.
+- [x] Fazer um executivel para rodar o programa.
 - [ ] (Opcional) - Tentar melhorar o visual, adicionando skins em certo dias especiais.
 
 
@@ -91,8 +91,9 @@ Vamos dividir em partes, como um mini-projeto modular e evolutivo:
 
 ---
 
+### Duas formas de executar o aplicativo para progamador e iniciante
 
-## 🧪 Como Executar
+## 🧪 Como Executar(Como progamador)
 Compile os arquivos (certifique-se de que o JAR do OpenPDF também está no classpath):
 ```
 javac -d bin -cp "lib/gson-2.10.1.jar;lib/openpdf-2.2.4.jar;resources;." App.java model*.java service*.java ui*.java
@@ -110,6 +111,61 @@ java -cp "bin:lib/gson-2.10.1.jar:lib/openpdf-2.2.4.jar:resources" App
 ```
 
 ---
+
+## 📦 Executar sem Compilar (Modo Simples)
+
+Se você não é programador ou só quer rodar o programa com um clique — sem terminal ou complicações — siga estes passos:
+
+### ✅ Pré-requisitos
+
+-   Java 8 ou superior instalado no seu computador.
+    
+-   Verifique a instalação com o seguinte comando no terminal:
+    
+    Bash
+    
+    ```
+    java -version
+    
+    ```
+    
+
+### ▶️ Como Abrir
+
+1.  Baixe ou copie a pasta completa do projeto, que deve ter a seguinte estrutura:
+    
+    ```
+    CalendarioUniversal/
+    ├── CalendarioUniversal.jar
+    ├── executar.bat
+    ├── lib/
+    │   ├── gson-2.10.1.jar
+    │   └── openpdf-2.2.4.jar
+    └── resources/
+    
+    ```
+    
+2.  Dê dois cliques no arquivo `executar.bat`.
+    
+
+Isso abrirá o programa normalmente com a interface gráfica.
+
+### 💡 Se nada acontecer...
+
+Tente as seguintes opções:
+
+-   Verifique se o Java está instalado corretamente.
+    
+-   Tente rodar o arquivo com o botão direito do mouse e selecione "Executar como administrador".
+    
+-   Ou abra o terminal (Prompt de Comando) na pasta do projeto e digite:
+    
+    Bash
+    
+    ```
+    java -cp "CalendarioUniversal.jar;lib/*;resources" App
+    ```
+
 
 ## 🔧 Bugs Conhecidos
 
