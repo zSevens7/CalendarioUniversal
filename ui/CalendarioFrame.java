@@ -1,5 +1,8 @@
 package ui;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.Image;
+import com.lowagie.text.pdf.PdfWriter;
 import model.Configuracao;
 import model.Pessoa;
 import service.CalendarioService;
@@ -12,11 +15,15 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class CalendarioFrame extends JFrame {
     private JPanel calendarioPanel;
@@ -26,9 +33,9 @@ public class CalendarioFrame extends JFrame {
     private JButton fillWindowBtn;
     private JButton salvarBtn;
     private JButton apagarBtn;
+    private JButton pdfBtn;
     private JComboBox<String> idiomaComboBox;
 
-    // Mapeia o nome traduzido do idioma para o objeto Locale (AGORA CAMPO DA CLASSE)
     private Map<String, Locale> localeMap;
 
     public CalendarioFrame(CalendarioService service) {
@@ -60,9 +67,10 @@ public class CalendarioFrame extends JFrame {
 
         fillWindowBtn = criarBotaoNavegacao(createMaximizeIcon());
 
-        // Os botões são criados aqui com o texto inicial, mas serão atualizados em atualizarTextosUI()
         salvarBtn = criarBotaoAcao(LocaleManager.getString("button.save"), createSaveIcon());
         apagarBtn = criarBotaoAcao(LocaleManager.getString("button.delete"), createDeleteIcon());
+        
+        pdfBtn = criarBotaoAcao(LocaleManager.getString("button.save_pdf"), createPdfIcon());
 
         mesAnoLabel = new JLabel("", SwingConstants.CENTER);
         mesAnoLabel.setFont(new Font("Arial", Font.BOLD, 24));
@@ -73,21 +81,21 @@ public class CalendarioFrame extends JFrame {
 
         botoesLaterais.add(salvarBtn);
         botoesLaterais.add(apagarBtn);
+        botoesLaterais.add(pdfBtn);
 
         JPanel navigationEastPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         navigationEastPanel.setOpaque(false);
         navigationEastPanel.add(proximoBtn);
         navigationEastPanel.add(fillWindowBtn);
 
-        // Inicializa o localeMap e o idiomaComboBox no construtor
-        inicializarIdiomaComboBox(); // CHAMADA AO NOVO MÉTODO
+        inicializarIdiomaComboBox();
 
         idiomaComboBox.addActionListener(e -> {
             String selectedTranslatedName = (String) idiomaComboBox.getSelectedItem();
-            Locale newLocale = localeMap.get(selectedTranslatedName); // Obtém o Locale pelo nome traduzido
+            Locale newLocale = localeMap.get(selectedTranslatedName);
             if (newLocale != null) {
                 LocaleManager.setLocale(newLocale);
-                atualizarTextosUI(); // Atualiza toda a UI após a mudança de idioma
+                atualizarTextosUI();
             }
         });
 
@@ -153,11 +161,12 @@ public class CalendarioFrame extends JFrame {
             }
         });
 
+        pdfBtn.addActionListener(e -> salvarCalendarioComoPDF());
+
         atualizarCalendario();
         setVisible(true);
     }
 
-    // Método para inicializar e popular o JComboBox de idioma
     private void inicializarIdiomaComboBox() {
         localeMap = new LinkedHashMap<>();
         localeMap.put(LocaleManager.getString("language.pt_BR"), new Locale.Builder().setLanguage("pt").setRegion("BR").build());
@@ -174,7 +183,6 @@ public class CalendarioFrame extends JFrame {
         localeMap.put(LocaleManager.getString("language.ar"), new Locale.Builder().setLanguage("ar").build());
         localeMap.put(LocaleManager.getString("language.zh_CN"), Locale.SIMPLIFIED_CHINESE);
 
-        // Se o idiomaComboBox ainda não foi criado, cria. Caso contrário, apenas atualiza o modelo.
         if (idiomaComboBox == null) {
             idiomaComboBox = new JComboBox<>(localeMap.keySet().toArray(new String[0]));
             idiomaComboBox.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -182,10 +190,9 @@ public class CalendarioFrame extends JFrame {
             DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(localeMap.keySet().toArray(new String[0]));
             idiomaComboBox.setModel(model);
         }
-        
-        // Define o item selecionado inicial com base no Locale atual
-        String currentLocaleKey = "language." + LocaleManager.getCurrentLocale().getLanguage() + 
-                                (LocaleManager.getCurrentLocale().getCountry().isEmpty() ? "" : "_" + LocaleManager.getCurrentLocale().getCountry());
+
+        String currentLocaleKey = "language." + LocaleManager.getCurrentLocale().getLanguage() +
+                (LocaleManager.getCurrentLocale().getCountry().isEmpty() ? "" : "_" + LocaleManager.getCurrentLocale().getCountry());
         String currentTranslatedName = LocaleManager.getString(currentLocaleKey);
         if (localeMap.containsKey(currentTranslatedName)) {
             idiomaComboBox.setSelectedItem(currentTranslatedName);
@@ -207,14 +214,11 @@ public class CalendarioFrame extends JFrame {
 
     private void atualizarTextosUI() {
         setTitle(LocaleManager.getString("app.title"));
-        salvarBtn.setText(LocaleManager.getString("button.save")); // ATUALIZA O TEXTO DO BOTÃO SALVAR
-        apagarBtn.setText(LocaleManager.getString("button.delete")); // ATUALIZA O TEXTO DO BOTÃO APAGAR
-        
-        // Recria o mapa e atualiza o modelo do JComboBox
-        inicializarIdiomaComboBox(); // Re-inicializa para pegar os nomes traduzidos atualizados
-
-        // Atualiza o mês/ano e os dias da semana no calendário
-        atualizarCalendario(); // Este método já recria os JLabels dos dias da semana
+        salvarBtn.setText(LocaleManager.getString("button.save"));
+        apagarBtn.setText(LocaleManager.getString("button.delete"));
+        pdfBtn.setText(LocaleManager.getString("button.save_pdf"));
+        inicializarIdiomaComboBox();
+        atualizarCalendario();
         revalidate();
         repaint();
     }
@@ -291,6 +295,20 @@ public class CalendarioFrame extends JFrame {
         return new ImageIcon(image);
     }
 
+    private ImageIcon createPdfIcon() {
+        int size = 18;
+        BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = image.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(Color.WHITE);
+        g2.drawRect(size / 8, size / 8, 6 * size / 8, 7 * size / 8);
+        g2.drawLine(size / 8, size / 4, 7 * size / 8, size / 4);
+        g2.setFont(new Font("Arial", Font.BOLD, 10));
+        g2.drawString("PDF", size / 8 + 2, size - 3);
+        g2.dispose();
+        return new ImageIcon(image);
+    }
+
     private JButton criarBotaoNavegacao(Icon icon) {
         JButton button = new JButton(icon);
         button.setFont(new Font("Arial", Font.BOLD, 18));
@@ -320,8 +338,48 @@ public class CalendarioFrame extends JFrame {
         return button;
     }
 
+    private void salvarCalendarioComoPDF() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle(LocaleManager.getString("dialog.save_pdf_title"));
+        fileChooser.setSelectedFile(new File("calendario.pdf"));
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            if (!fileToSave.getName().toLowerCase().endsWith(".pdf")) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + ".pdf");
+            }
+
+            try {
+                Document document = new Document();
+                PdfWriter.getInstance(document, new FileOutputStream(fileToSave));
+                document.open();
+                
+                // Captura a imagem do painel principal (que contém o cabeçalho e o calendário)
+                Container contentPane = this.getContentPane();
+                BufferedImage image = new BufferedImage(contentPane.getWidth(), contentPane.getHeight(), BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2d = image.createGraphics();
+                contentPane.printAll(g2d);
+                g2d.dispose();
+
+                Image pdfImage = Image.getInstance(image, null);
+                pdfImage.scaleToFit(document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin(), document.getPageSize().getHeight() - document.topMargin() - document.bottomMargin());
+                pdfImage.setAlignment(Image.ALIGN_CENTER);
+
+                document.add(pdfImage);
+                document.close();
+
+                JOptionPane.showMessageDialog(this, LocaleManager.getString("dialog.save_pdf_success"), LocaleManager.getString("dialog.info_title"), JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, LocaleManager.getString("dialog.save_pdf_error") + ex.getMessage(), LocaleManager.getString("dialog.error_title"), JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
     private void atualizarCalendario() {
         calendarioPanel.removeAll();
+        mesAnoLabel.setText("");
 
         YearMonth anoMes = YearMonth.from(dataAtual);
         int diasNoMes = anoMes.lengthOfMonth();
@@ -336,15 +394,14 @@ public class CalendarioFrame extends JFrame {
             mesAnoLabel.setText("");
         }
 
-
         String[] diasDaSemana = {
-            LocaleManager.getString("day.monday"),
-            LocaleManager.getString("day.tuesday"),
-            LocaleManager.getString("day.wednesday"),
-            LocaleManager.getString("day.thursday"),
-            LocaleManager.getString("day.friday"),
-            LocaleManager.getString("day.saturday"),
-            LocaleManager.getString("day.sunday")
+                LocaleManager.getString("day.monday"),
+                LocaleManager.getString("day.tuesday"),
+                LocaleManager.getString("day.wednesday"),
+                LocaleManager.getString("day.thursday"),
+                LocaleManager.getString("day.friday"),
+                LocaleManager.getString("day.saturday"),
+                LocaleManager.getString("day.sunday")
         };
         for (String diaSemana : diasDaSemana) {
             JLabel headerLabel = new JLabel(diaSemana, SwingConstants.CENTER);

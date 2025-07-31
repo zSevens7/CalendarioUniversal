@@ -1,0 +1,18 @@
+{
+  "pessoas": [
+    {
+      "nome": "Diego",
+      "cor": "#add8e6"
+    },
+    {
+      "nome": "Rosa",
+      "cor": "#ffb6c1"
+    },
+    {
+      "nome": "Verde",
+      "cor": "#90ee90"
+    }
+  ],
+  "dataInicial": "2025-07-31",
+  "substituicoes": {}
+}
